@@ -80,30 +80,10 @@ This repository contains the **backend** for **Extreme Culture**, a modern e-com
 
 ## 🗂️ Project Structure
 
-extreme-culture/
-├── core/
-│   ├── __init__.py
-│   ├── models.py
-│   ├── views.py
-│   ├── serializers.py
-│   ├── filters.py
-│   ├── admin.py (if any)
-│   ├── urls.py
-│   ├── services/
-│   │   ├── __init__.py
-│   │   └── coupon_service.py
-│   └── utils/
-│       └── shipping.py
-├── admin/                 # Your custom admin app
-│   ├── views.py
-│   ├── serializers.py
-│   ├── authentication.py
-│   └── permissions.py
-├── manage.py
-└── requirements.txt
+
 ---
 
-## 🚚 Shipping Logic Diagram
+## 🚚 ER DIAGRAM
 
 ![Shipping Logic Diagram](https://github.com/HARI809816/extreme-culture-django-backend-/blob/f40cc651fd4e644fb23fe28687dab3bdf9d562ef/extreme%20culture%20workflow%20diagram.png)
 
