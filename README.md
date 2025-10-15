@@ -103,6 +103,10 @@ extreme-culture/
 └── requirements.txt
 ---
 
+## 🚚 Shipping Logic Diagram
+
+![Shipping Diagram](extreme-culture-django-backend/extreme culture workflow diagram.png)
+
 ## 🚀 Setup
 
 ### 1. Clone & Install
