@@ -81,20 +81,24 @@ This repository contains the **backend** for **Extreme Culture**, a modern e-com
 ## 🗂️ Project Structure
 
 extreme-culture/
-├── core/                 # Customer APIs & models
-│   ├── models.py         # CustomUser, Product, Order, Cart, Coupon, etc.
-│   ├── views.py          # Auth, cart, checkout, shipping, etc.
-│   ├── serializers.py    # DRF serializers
-│   ├── filters.py        # ProductFilter
-│   └── utils/
-│       └── shipping.py   # Shipping calculator
-├── admin/                # Admin-only APIs
-│   ├── views.py          # Product, coupon, dashboard (Super Admin only)
+├── core/
+│   ├── __init__.py
+│   ├── models.py
+│   ├── views.py
 │   ├── serializers.py
-│   ├── authentication.py # AdminJWTAuthentication
-│   └── permissions.py    # IsAdminAuthenticated, IsSuperAdmin
-├── services/             # Business logic
-│   └── coupon_service.py # BOGO logic
+│   ├── filters.py
+│   ├── admin.py (if any)
+│   ├── urls.py
+│   ├── services/
+│   │   ├── __init__.py
+│   │   └── coupon_service.py
+│   └── utils/
+│       └── shipping.py
+├── admin/                 # Your custom admin app
+│   ├── views.py
+│   ├── serializers.py
+│   ├── authentication.py
+│   └── permissions.py
 ├── manage.py
 └── requirements.txt
 ---
