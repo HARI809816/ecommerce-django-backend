@@ -105,7 +105,7 @@ extreme-culture/
 
 ## 🚚 Shipping Logic Diagram
 
-![Shipping Diagram](extreme-culture-django-backend/extreme culture workflow diagram.png)
+![Shipping Logic Diagram](extreme culture workflow diagram.png)
 
 ## 🚀 Setup
 
