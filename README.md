@@ -80,7 +80,7 @@ This repository contains the **backend** for **Extreme Culture**, a modern e-com
 
 ## 🗂️ Project Structure
 
-![Project Structure ]()
+![Project Structure ](https://github.com/HARI809816/ecommerce-django-backend/blob/70510a22ce084c562bbd0de49cfd902180c7c264/project%20structure.png)
 
 ---
 
