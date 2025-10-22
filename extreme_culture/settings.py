@@ -161,6 +161,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # sms otp verification
-TWILIO_ACCOUNT_SID = "ACac70f254cb38afc4831b22667f1756dc"
-TWILIO_AUTH_TOKEN = "c38773ad3c94cabd25fe6490cc500b58"
-TWILIO_PHONE_NUMBER = "+17828222201"  # Twilio phone number
+TWILIO_ACCOUNT_SID = "your_twilio_account_sid"
+TWILIO_AUTH_TOKEN = "your_twilio_auth_token"
+TWILIO_PHONE_NUMBER = ""  # Twilio phone number
