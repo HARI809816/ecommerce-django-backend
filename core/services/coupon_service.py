@@ -3,11 +3,16 @@
 from decimal import Decimal
 from collections import defaultdict
 
-def apply_coupon_to_cart(coupon, cart_items):
+def apply_coupon_to_cart(coupon, cart_items, user=None):  # ✅ ADD USER PARAMETER
     """
     Apply coupon to cart items and return discount amount.
     Supports 'bogo_50', 'percentage', and 'fixed_amount'.
     """
+    # ✅ CHECK NEW USER VALIDATION
+    if hasattr(coupon, 'is_new_user_only') and coupon.is_new_user_only:
+        if not user or not coupon.is_valid_for_user(user):
+            return Decimal('0')
+    
     if not coupon.is_valid():
         return Decimal('0')
 

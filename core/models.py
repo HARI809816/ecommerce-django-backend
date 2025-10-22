@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 from django.core.exceptions import ValidationError
+from decimal import Decimal
 import uuid
 
 
@@ -74,19 +75,25 @@ class Coupon(models.Model):
     DISCOUNT_TYPE_CHOICES = [
         ('percentage', 'Percentage'),
         ('fixed_amount', 'Fixed Amount'),
-        ('bogo_50', 'BOGO 50% Off'),  # New type
+        ('bogo_50', 'BOGO 50% Off'),
     ]
 
     code = models.CharField(max_length=50, unique=True)
     discount_type = models.CharField(max_length=20, choices=DISCOUNT_TYPE_CHOICES)
-    discount_value = models.DecimalField(max_digits=10, decimal_places=2)  # Still used for %/fixed
+    discount_value = models.DecimalField(max_digits=10, decimal_places=2)
     minimum_order_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     # For BOGO: link to specific products
     applicable_products = models.ManyToManyField(
-        'Product',  # Assuming Product is in the same app or use 'core.Product'
+        'Product',
         blank=True,
         help_text="Only used for BOGO-type coupons. Leave blank for site-wide coupons."
+    )
+
+    # ✅ NEW FIELD: New User Only Coupon
+    is_new_user_only = models.BooleanField(
+        default=False,
+        help_text="If checked, this coupon can only be used by new users (users with no previous orders)."
     )
 
     is_active = models.BooleanField(default=True)
@@ -107,6 +114,17 @@ class Coupon(models.Model):
             raise ValidationError({'discount_value': 'Percentage must be between 0 and 100.'})
         if self.discount_type in ['fixed_amount', 'bogo_50'] and self.discount_value < 0:
             raise ValidationError({'discount_value': 'Discount value must be non-negative.'})
+    
+    def calculate_discount(self, total_amount):
+        """Calculate discount amount based on discount type and value"""
+        if self.discount_type == 'percentage':
+            discount = total_amount * (self.discount_value / Decimal('100'))
+            return min(discount, total_amount)  # Don't exceed total amount
+        elif self.discount_type == 'fixed_amount':
+            return min(self.discount_value, total_amount)  # Don't exceed total amount
+        else:  # bogo_50 - this shouldn't be called directly for BOGO, handled separately
+            return Decimal('0')
+        
 
     def is_valid(self):
         from django.utils import timezone
@@ -116,6 +134,26 @@ class Coupon(models.Model):
             and self.valid_from <= now <= self.valid_to
             and (self.usage_limit is None or self.used_count < self.usage_limit)
         )
+
+    # ✅ NEW METHOD: Check if user is new
+    def is_valid_for_user(self, user):
+        """Check if coupon is valid for specific user (including new user check)"""
+        if not self.is_valid():
+            return False
+        
+        if self.is_new_user_only and user:
+            # Check if user has any previous orders (excluding current order validation)
+            from django.apps import apps
+            Order = apps.get_model('core', 'Order')  # Replace with your app name
+            previous_orders = Order.objects.filter(user=user).exclude(
+                # Exclude orders that might be in validation process
+                status='placed'  # or whatever status indicates pending validation
+            ).count()
+            
+            if previous_orders > 0:
+                return False
+        
+        return True
     
 class Order(models.Model):
     PAYMENT_METHOD_CHOICES = [

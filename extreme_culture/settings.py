@@ -51,8 +51,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your SMTP email'         # your SMTP email
-EMAIL_HOST_PASSWORD = 'app password, not your main password'        # app password, not your main password
+EMAIL_HOST_USER = 'vharikumar.art@gmail.com'         # your SMTP email
+EMAIL_HOST_PASSWORD = 'adrs negf bhvi fmqg'        # app password, not your main password
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 REST_FRAMEWORK ={
@@ -161,6 +161,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # sms otp verification
-TWILIO_ACCOUNT_SID =""
-TWILIO_AUTH_TOKEN = ""  # your auth token
-TWILIO_PHONE_NUMBER = ""  # Twilio phone number
+TWILIO_ACCOUNT_SID = "ACac70f254cb38afc4831b22667f1756dc"
+TWILIO_AUTH_TOKEN = "c38773ad3c94cabd25fe6490cc500b58"
+TWILIO_PHONE_NUMBER = "+17828222201"  # Twilio phone number

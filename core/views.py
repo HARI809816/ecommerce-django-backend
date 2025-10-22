@@ -1002,9 +1002,19 @@ class CreateOrderView(APIView):
             if coupon_code:
                 try:
                     coupon = Coupon.objects.get(code=coupon_code, is_active=True)
+                    
+                    # ✅ CHECK NEW USER VALIDATION HERE
+                    if not coupon.is_valid_for_user(request.user):
+                        return Response(
+                            {"error": "This coupon is only available for new users."},
+                            status=status.HTTP_400_BAD_REQUEST
+                        )
+                    
                     if coupon.is_valid():
                         if coupon.discount_type == 'bogo_50':
-                            discount_amount = apply_coupon_to_cart(coupon, list(cart_items))
+                            # ✅ PASS USER TO COUPON SERVICE FOR BOGO VALIDATION TOO
+                            from core.services.coupon_service import apply_coupon_to_cart
+                            discount_amount = apply_coupon_to_cart(coupon, list(cart_items), request.user)
                         else:
                             if total >= coupon.minimum_order_amount:
                                 discount_amount = coupon.calculate_discount(total)
@@ -1426,24 +1436,20 @@ def initiate_checkout(request):
 
 
 @api_view(['POST'])
-@permission_classes([AllowAny]) # Allow checking without login initially, but logic can require user later
+@permission_classes([AllowAny])
 def validate_coupon(request):
     """
     API endpoint to validate a coupon code against a given total amount.
     Expects:
     {
       "code": "COUPON_CODE",
-      "total_amount": 1500.00
-    }
-    Returns:
-    {
-      "is_valid": true/false,
-      "message": "Success or error message",
-      "discount_amount": 150.00 (if valid)
+      "total_amount": 1500.00,
+      "user_id": 123  # ✅ OPTIONAL: User ID for new user validation
     }
     """
     code = request.data.get('code')
     total_amount_str = request.data.get('total_amount')
+    user_id = request.data.get('user_id')  # ✅ NEW: Get user ID
 
     if not code or total_amount_str is None:
         return Response(
@@ -1452,7 +1458,7 @@ def validate_coupon(request):
         )
 
     try:
-        total_amount_float = float(total_amount_str) # Original float value for comparison
+        total_amount_float = float(total_amount_str)
     except (TypeError, ValueError):
         return Response(
             {"error": "Total amount must be a valid number."},
@@ -1460,14 +1466,31 @@ def validate_coupon(request):
         )
 
     try:
-        coupon = Coupon.objects.get(code__iexact=code) # Case-insensitive match
+        coupon = Coupon.objects.get(code__iexact=code)
     except Coupon.DoesNotExist:
         return Response(
             {"is_valid": False, "message": "Invalid coupon code."},
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # Check validity
+    # ✅ CHECK NEW USER VALIDATION
+    user = None
+    if user_id:
+        try:
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            pass
+    
+    # Use the new validation method
+    if not coupon.is_valid_for_user(user):
+        return Response(
+            {"is_valid": False, "message": "This coupon is only available for new users."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Check basic validity
     if not coupon.is_valid():
         return Response(
             {"is_valid": False, "message": "Coupon is not valid (check dates, status, or usage limit)."},
@@ -1480,21 +1503,17 @@ def validate_coupon(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # Convert total_amount to Decimal for safe calculation with the coupon model
     total_amount_decimal = Decimal(str(total_amount_float))
-
-    # Calculate discount using the FIXED calculate_discount method in models.py (returns Decimal)
     discount_amount_decimal = coupon.calculate_discount(total_amount_decimal)
-
-    # Calculate final total (Decimal)
     final_total_decimal = total_amount_decimal - discount_amount_decimal
 
     return Response(
         {
             "is_valid": True,
             "message": "Coupon is valid.",
-            "discount_amount": float(discount_amount_decimal), # Convert back to float for JSON response
-            "final_total": float(final_total_decimal) # Convert back to float for JSON response
+            "discount_amount": float(discount_amount_decimal),
+            "final_total": float(final_total_decimal),
+            "is_new_user_only": coupon.is_new_user_only  # ✅ INCLUDE IN RESPONSE
         },
         status=status.HTTP_200_OK
     )

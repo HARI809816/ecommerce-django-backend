@@ -234,13 +234,14 @@ class AdminCreateCouponView(APIView):
             valid_to = request.data.get('valid_to')
             usage_limit = request.data.get('usage_limit', None)
             is_active = request.data.get('is_active', True)
+            is_new_user_only = request.data.get('is_new_user_only', False)  # ✅ NEW FIELD
             product_ids = request.data.get('applicable_products', [])
 
             # Validate required fields
             if not all([code, discount_type]):
                 return Response({"error": "Code and discount type are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # ✅ CHECK UNIQUENESS FIRST
+            # CHECK UNIQUENESS FIRST
             if Coupon.objects.filter(code=code).exists():
                 return Response(
                     {"error": f"Coupon code '{code}' already exists."},
@@ -256,7 +257,7 @@ class AdminCreateCouponView(APIView):
             except (ValueError, TypeError):
                 return Response({"error": "Invalid numeric values."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # ✅ NOW create — safe because we checked uniqueness
+            # NOW create — safe because we checked uniqueness
             coupon = Coupon.objects.create(
                 code=code,
                 discount_type=discount_type,
@@ -265,7 +266,8 @@ class AdminCreateCouponView(APIView):
                 valid_from=valid_from,
                 valid_to=valid_to,
                 usage_limit=usage_limit,
-                is_active=is_active
+                is_active=is_active,
+                is_new_user_only=is_new_user_only  # ✅ SAVE NEW FIELD
             )
 
             # Handle BOGO products
@@ -287,11 +289,11 @@ class AdminCreateCouponView(APIView):
                 "message": "Coupon created successfully",
                 "coupon_id": coupon.id,
                 "code": coupon.code,
-                "discount_type": coupon.discount_type
+                "discount_type": coupon.discount_type,
+                "is_new_user_only": coupon.is_new_user_only  # ✅ INCLUDE IN RESPONSE
             }, status=status.HTTP_201_CREATED)
 
         except IntegrityError:
-            # Fallback for race conditions (optional but safe)
             return Response(
                 {"error": f"Coupon code '{code}' already exists (concurrent request)."},
                 status=status.HTTP_400_BAD_REQUEST
