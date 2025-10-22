@@ -86,7 +86,7 @@ This repository contains the **backend** for **Extreme Culture**, a modern e-com
 
 ## 🚚 ER DIAGRAM
 
-![Shipping Logic Diagram]()
+![Shipping Logic Diagram](https://github.com/HARI809816/ecommerce-django-backend/blob/b7fe28811e8cf142169e32cb0be13dfe8a1e4b39/extreme%20culture%20workflow%20diagram.png)
 
 ## 🚀 Setup
 
