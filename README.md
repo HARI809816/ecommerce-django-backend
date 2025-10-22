@@ -80,13 +80,13 @@ This repository contains the **backend** for **Extreme Culture**, a modern e-com
 
 ## 🗂️ Project Structure
 
-![Project Structure ](https://github.com/HARI809816/extreme-culture-django-backend-/blob/e36fe3a6a0f31d44754eb0f640724af2920ac4f6/project%20structure.png)
+![Project Structure ]()
 
 ---
 
 ## 🚚 ER DIAGRAM
 
-![Shipping Logic Diagram](https://github.com/HARI809816/extreme-culture-django-backend-/blob/f40cc651fd4e644fb23fe28687dab3bdf9d562ef/extreme%20culture%20workflow%20diagram.png)
+![Shipping Logic Diagram]()
 
 ## 🚀 Setup
 
